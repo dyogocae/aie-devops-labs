@@ -28,18 +28,26 @@ jobs:
       AWS_REGION: us-east-1
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
-        with: { python-version: "3.12", cache: pip }
-      - run: pip install -r requirements.txt
-      - run: python classificador/treino.py
-      - run: python classificador/model_gate.py artefatos/metricas.json
-
-      - uses: aws-actions/configure-aws-credentials@v6
+      - name: Validar credenciais do AWS Academy
+        id: credenciais
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
+          retry-max-attempts: 1
+
+      - name: Orientar renovação das credenciais
+        if: failure() && steps.credenciais.outcome == 'failure'
+        run: |
+          echo "::error::Falha na autenticação AWS. Se o token expirou, inicie o Learner Lab e atualize juntos AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY e AWS_SESSION_TOKEN (inclusive no environment producao, se definidos). Veja roteiros/setup-aws-academy.md, passo 3, e execute o workflow novamente."
+
+      - uses: actions/setup-python@v7
+        with: { python-version: "3.12", cache: pip }
+      - run: pip install -r requirements.txt
+      - run: python classificador/treino.py
+      - run: python classificador/model_gate.py artefatos/metricas.json
 
       - name: Versão estável (a que está 100% hoje)
         id: estavel

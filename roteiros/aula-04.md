@@ -4,6 +4,16 @@
 
 Pré-requisito: o deploy da Aula 2 já feito (a função `classificador-avaliacoes` e o alias `producao`).
 
+Antes de executar, inicie o Learner Lab e atualize **os três secrets juntos** (`AWS_ACCESS_KEY_ID`,
+`AWS_SECRET_ACCESS_KEY` e `AWS_SESSION_TOKEN`) com os valores da sessão atual, conforme
+[setup do AWS Academy, passo 3](setup-aws-academy.md#3-credenciais-para-o-github-actions-a-cada-aula).
+Se esses secrets também estiverem definidos no environment `producao`, atualize-os lá: eles têm
+precedência sobre os secrets do repositório.
+
+Se a autenticação falhar com `The security token included in the request is expired`, renove os secrets
+e execute o workflow novamente. O canary valida as credenciais antes de instalar dependências e treinar;
+repetir a execução sem renovar os secrets não recupera um token expirado.
+
 ## 1. Canary saudável
 
 ```bash
